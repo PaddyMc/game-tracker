@@ -6,19 +6,19 @@
 <ul>
     <li>
         truffle console
-    <li>
+    </li>
     <li>
         test
-    <li>
+    </li>
     <li>
         compile
-    <li>
+    </li>
     <li>
         migrate
-    <li>
+    </li>
     <li>
         deploy
-    <li>
+    </li>
 </ul>
 <h3>
     Smart Contract: Rinkeby
@@ -26,5 +26,5 @@
 <ul>
     <li>
         0xe27fcc33409308a83e2aeaf0b117c5f53d14107e
-    <li>
+    </li>
 </ul>
