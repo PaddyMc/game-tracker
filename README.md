@@ -1,4 +1,12 @@
-#Game upload tracker smart contract
+<h1>
+    Game Upload Tracker: Smart Contract
+</h1>
+<p>
+    This smart contract is used to store the locations of games uploaded to IPFS, it 
+    also allows indie game developers to be funded for uploading games.
+</p>
+
+<hr />
 
 <h3>
     To Deploy
