@@ -49,12 +49,12 @@ contract('Gametracker', function(accounts) {
         assert.equal(gameAccount[1].toString(), 100000000, "game account is incorrect")
     });
 
-    it("transfers ownership of the game", async () => {
-        const transferOwnership = await gametracker.transferOwnership(0, {from:funderTwo, value:arbitraryAmount})
-        const gameOwner = await gametracker.getOwnerForGame(0)
-        assert.equal(transferOwnership.logs[0].args.newOwner, gameOwner, "ownership did not transfer")
-        assert.notEqual(transferOwnership.logs[0].args.orginalOwner, gameOwner, "ownership did not transfer")
-    });
+    // it("transfers ownership of the game", async () => {
+    //     const transferOwnership = await gametracker.transferOwnership(0, {from:funderTwo, value:arbitraryAmount})
+    //     const gameOwner = await gametracker.getOwnerForGame(0)
+    //     assert.equal(transferOwnership.logs[0].args.newOwner, gameOwner, "ownership did not transfer")
+    //     assert.notEqual(transferOwnership.logs[0].args.orginalOwner, gameOwner, "ownership did not transfer")
+    // });
 
     it("funds a game", async () => {
         const gameAccount = await gametracker.fundGameOwner(0, {from:funder, value: arbitraryAmount})

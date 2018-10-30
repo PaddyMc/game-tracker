@@ -85,15 +85,15 @@ contract GameTracker is Accounting {
 
     // }
 
-    function transferOwnership(uint position) public payable {
-        require(msg.sender.balance >= msg.value, "not enough funds");
-        GameData storage gamedata = allGameData[position];
-        gamedata.owner.transfer(msg.value);
-        address orginalOwner = gamedata.owner;
-        gamedata.owner = msg.sender;
+    // function transferOwnership(uint position) public payable {
+    //     require(msg.sender.balance >= msg.value, "not enough funds");
+    //     GameData storage gamedata = allGameData[position];
+    //     gamedata.owner.transfer(msg.value);
+    //     address orginalOwner = gamedata.owner;
+    //     gamedata.owner = msg.sender;
 
-        emit TransferOwnership(orginalOwner, msg.sender);
-    }
+    //     emit TransferOwnership(orginalOwner, msg.sender);
+    // }
 
     /**
         Funders
