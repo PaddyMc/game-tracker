@@ -49,7 +49,7 @@ contract Accounting {
         return base.tokenBalances[token];
     }
 
-    function depositETH(Account memory a, address _from, uint _value) internal {
+    function depositETH(Account storage a, address _from, uint _value) internal {
         a.balanceETH = a.balanceETH.add(_value);
         totalETH = totalETH.add(_value);
         emit ETHDeposited(a.name, _from, _value);
