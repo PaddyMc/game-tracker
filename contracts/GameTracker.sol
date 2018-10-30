@@ -18,6 +18,7 @@ contract GameTracker is Accounting {
     event Uploaded(string ipfsHash);
     event UpdatedBalance(address addressFunded, uint balanceETH);
     event TopFunder(address topFunder, uint topFunds);
+    event TransferOwnership(address orginalOwner, address newOwner);
 
     constructor() public {
         owner = msg.sender;
@@ -43,6 +44,9 @@ contract GameTracker is Accounting {
     uint numberOfGames = 0;
     uint numberOfFunders = 0;
 
+    /**
+        Games
+    */
     function upload(string ipfsHash, bytes32 name) public returns (string) {
         require(bytes(ipfsHash).length == 46, "incorrect length");
 
@@ -76,14 +80,36 @@ contract GameTracker is Accounting {
         GameData memory gamedata = allGameData[position];
         return (gamedata.account.name, gamedata.account.balanceETH);
     }
+    // ToDo
+    // function getAllGamesForOwner(address multipleOwnerAddress) public view returns (string){
 
+    // }
+
+    function transferOwnership(uint position) public payable {
+        require(msg.sender.balance >= msg.value, "not enough funds");
+        GameData storage gamedata = allGameData[position];
+        gamedata.owner.transfer(msg.value);
+        address orginalOwner = gamedata.owner;
+        gamedata.owner = msg.sender;
+
+        emit TransferOwnership(orginalOwner, msg.sender);
+    }
+
+    /**
+        Funders
+    */
     function getFunderAddressByNum(uint position) public view returns (address) {
         Funder memory funder = funders[position];
         return funder.funder;
     }
 
-    // ToDo: function getAllGamesForOwner
-    // ToDo: function transferOwnership
+    function getNumberOfFunders() public view returns (uint) {
+        return numberOfFunders;
+    }
+
+    function getTotalAmountFunded() public view returns (uint){
+        return totalETH;
+    }
 
     function fundGameOwner(uint position) public payable {
         require(msg.sender.balance >= msg.value, "not enough funds");
@@ -111,10 +137,6 @@ contract GameTracker is Accounting {
         emit UpdatedBalance(gamedata.owner, gamedata.account.balanceETH);
     }
 
-    function getTotalAmountFunded() public view returns (uint){
-        return totalETH;
-    }
-
     function getTopFunder() public {
         uint topFunds = 0;
         address topFunder;
@@ -139,9 +161,5 @@ contract GameTracker is Accounting {
             }
         }
         return(fun, funTwo, isFunder);
-    }
-
-    function getNumberOfFunders() public view returns (uint) {
-        return numberOfFunders;
     }
 }
