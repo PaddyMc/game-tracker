@@ -14,7 +14,7 @@ contract TestGameTracker {
         Assert.equal(numberOfHashes, expected, "added to smart contract");
     }
 
-    function testGetAllHashes() public {
+    function testGetHashByNum() public {
         gameTracker.upload("Qm2XgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd", "Paddy");
         string memory returnedHash = gameTracker.getHashByNum(1);
         string memory expected = "Qm2XgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd";
