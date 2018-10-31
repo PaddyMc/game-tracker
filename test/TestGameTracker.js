@@ -45,8 +45,10 @@ contract('Gametracker', function(accounts) {
     });
 
     it("checks game account is correct", async () => {
+        await gametracker.fundGameOwner(0, {from:funderInit, value: arbitraryAmount2})
+        await gametracker.fundGameOwner(0, {from:funderInit, value: arbitraryAmount3})
         const gameAccount = await gametracker.getAccountForGame(0)
-        assert.equal(gameAccount[1].toString(), 100000000, "game account is incorrect")
+        assert.equal(gameAccount[1].toString(), 600000000, "game account is incorrect")
     });
 
     // it("transfers ownership of the game", async () => {
@@ -95,7 +97,7 @@ contract('Gametracker', function(accounts) {
     it("ensures top funder is correct",  async () => {
         await gametracker.fundGameOwner(0, {from:funderInit, value: arbitraryAmount})
         const topFunder = await gametracker.getTopFunder()
-        assert.equal(topFunder.logs[0].args.topFunder, funderInit, "incorrect top funder")
-        assert.equal(topFunder.logs[0].args.topFunds, arbitraryAmount*2, "incorrect amount funded")
+        assert.equal(topFunder[0], funderInit, "incorrect top funder")
+        assert.equal(topFunder[1], arbitraryAmount*2, "incorrect amount funded")
     });
 });

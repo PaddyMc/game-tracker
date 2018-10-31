@@ -10,15 +10,15 @@ import "./Accounting.sol";
 import "./lib/math.sol";
 
 /**
- a base contract for tracking game uploads and funders
- */
+    a base contract for tracking game uploads and funders
+**/
 contract GameTracker is Accounting {
     address owner;
 
     event Uploaded(string ipfsHash);
     event UpdatedBalance(address addressFunded, uint balanceETH);
     event TopFunder(address topFunder, uint topFunds);
-    event TransferOwnership(address orginalOwner, address newOwner);
+    // event TransferOwnership(address orginalOwner, address newOwner);
 
     constructor() public {
         owner = msg.sender;
@@ -46,8 +46,8 @@ contract GameTracker is Accounting {
 
     /**
         Games
-    */
-    function upload(string ipfsHash, bytes32 name) public returns (string) {
+    **/
+    function upload(string ipfsHash, bytes32 name) public {
         require(bytes(ipfsHash).length == 46, "incorrect length");
 
         Account memory init = Account({
@@ -69,7 +69,7 @@ contract GameTracker is Accounting {
 
     function getNumberOfHashes() public view returns (uint) {
         return numberOfGames;
-    }
+    }   
 
     function getOwnerForGame(uint position) public view returns (address) {
         GameData memory gamedata = allGameData[position];
@@ -97,7 +97,7 @@ contract GameTracker is Accounting {
 
     /**
         Funders
-    */
+    **/
     function getFunderAddressByNum(uint position) public view returns (address) {
         Funder memory funder = funders[position];
         return funder.funder;
@@ -137,29 +137,30 @@ contract GameTracker is Accounting {
         emit UpdatedBalance(gamedata.owner, gamedata.account.balanceETH);
     }
 
-    function getTopFunder() public {
-        uint topFunds = 0;
+    function getTopFunder() public view returns (address, uint){
+        uint topAmountFunded = 0;
         address topFunder;
         for(uint i = 0; i < numberOfFunders; i++){
-            if(funders[i].account.balanceETH > topFunds){
-                topFunds = funders[i].account.balanceETH;
+            if(funders[i].account.balanceETH > topAmountFunded){
+                topAmountFunded = funders[i].account.balanceETH;
                 topFunder = funders[i].funder;
             }
         }
-        emit TopFunder(topFunder, topFunds);
+        //emit TopFunder(topFunder, topFunds);
+        return (topFunder, topAmountFunded);
     }
 
-    function _hasFundingAccount(address funderAc) private view returns(Funder memory, Funder storage, bool){
-        Funder memory fun;
-        Funder storage funTwo;
+    function _hasFundingAccount(address funderAccount) private view returns(Funder memory, Funder storage, bool){
+        Funder memory funderMemory;
+        Funder storage funderStorage;
         bool isFunder = false;
         for(uint i = 0; i < numberOfFunders; i++){
-            if(getFunderAddressByNum(i) == funderAc) {
-                funTwo = funders[i];
+            if(getFunderAddressByNum(i) == funderAccount) {
+                funderStorage = funders[i];
                 isFunder = true;
-                return(fun, funTwo, isFunder);
+                return(funderMemory, funderStorage, isFunder);
             }
         }
-        return(fun, funTwo, isFunder);
+        return(funderMemory, funderStorage, isFunder);
     }
 }
