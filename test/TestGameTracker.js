@@ -6,6 +6,8 @@ contract('Gametracker', function(accounts) {
     var funderInit = accounts[2];
     var funderTwo = accounts[3];
 
+    var gameUploader = accounts[4]
+
     var gametracker;
     var validIpfsHash = "QmPXgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd"
     var name = "Paddy"
@@ -32,6 +34,25 @@ contract('Gametracker', function(accounts) {
     it("uploads an ipfs hash for a game", async () => {
         const numberOfGames = await gametracker.getNumberOfHashes()
         assert.equal(numberOfGames, 1, "ipfs hash for game has not been added")
+    });
+
+    it("gets the ipfs hash by owner", async () => {
+        const ownedIPFSHash = await gametracker.getIPFSHashForOwner(admin, 0)
+        assert.equal(ownedIPFSHash, validIpfsHash, "ipfs hash is incorrect")
+    });
+
+    it("gets multiple ipfs hashs by owner", async () => {
+        await gametracker.upload(validIpfsHash, name, {from:gameUploader})
+        let numberOfGamesOwner = await gametracker.getTotalGamesForOwner(gameUploader)
+        assert.equal(numberOfGamesOwner.toString(), 1, "incorrect amount of games owned")
+        await gametracker.upload(validIpfsHash, name, {from:gameUploader})
+        numberOfGamesOwner = await gametracker.getTotalGamesForOwner(gameUploader)
+        assert.equal(numberOfGamesOwner.toString(), 2, "incorrect amount of games owned")
+
+        for(let i = 0; i < Number(numberOfGamesOwner.toString()); i++){
+            const ownedIPFSHash = await gametracker.getIPFSHashForOwner(gameUploader, i)
+            assert.equal(ownedIPFSHash, validIpfsHash, "ipfs hash is incorrect")
+        }
     });
 
     it("checks ipfs hash is uploaded", async () => {
@@ -99,5 +120,26 @@ contract('Gametracker', function(accounts) {
         const topFunder = await gametracker.getTopFunder()
         assert.equal(topFunder[0], funderInit, "incorrect top funder")
         assert.equal(topFunder[1], arbitraryAmount*2, "incorrect amount funded")
+    });
+    
+    it("gets the amount funded by address", async () => {
+        await gametracker.fundGameOwner(0, {from:funderInit, value: arbitraryAmount})
+        const amountFunded = await gametracker.getAmountFundedByAddress(funderInit)
+        assert.equal(amountFunded.toString(), arbitraryAmount * 2, "incorrect total amount")
+    });
+
+    it("gets the funder data by number", async () => {
+        const funderData = await gametracker.getFunderDataByNum(0)
+        assert.equal(funderData[0], funderInit, "funder is incorrect")
+        assert.equal(funderData[1], arbitraryAmount, "amount funded is incorrect")
+    });
+
+    it("gets the funder data by game location", async () => {
+        let funderData = await gametracker.getAllFundersForGame(validIpfsHash)
+        assert.equal(funderData[0], funderInit, "incorrect funder")
+        await gametracker.fundGameOwner(0, {from:funder, value: arbitraryAmount})
+        funderData = await gametracker.getAllFundersForGame(validIpfsHash)
+        assert.equal(funderData[0], funderInit, "incorrect funder")
+        assert.equal(funderData[1], funder, "incorrect funder")
     });
 });

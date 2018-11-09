@@ -41,6 +41,11 @@ contract GameTracker is Accounting {
 
     mapping(uint => GameData) allGameData;
     mapping(uint => Funder) funders;
+
+    mapping(address => string[]) gameOwnerData;
+    mapping(address => uint) funderFundedData;
+    mapping(string => address[]) ipfsHashFunded;
+
     uint numberOfGames = 0;
     uint numberOfFunders = 0;
 
@@ -57,6 +62,7 @@ contract GameTracker is Accounting {
 
         GameData memory gamedata = GameData(init, msg.sender, ipfsHash);
         allGameData[numberOfGames] = gamedata;
+        gameOwnerData[msg.sender].push(ipfsHash);
         numberOfGames++;
        
         emit Uploaded(ipfsHash);
@@ -80,10 +86,14 @@ contract GameTracker is Accounting {
         GameData memory gamedata = allGameData[position];
         return (gamedata.account.name, gamedata.account.balanceETH);
     }
-    // ToDo
-    // function getAllGamesForOwner(address multipleOwnerAddress) public view returns (string){
 
-    // }
+    function getIPFSHashForOwner(address ownerAddress, uint number) public view returns (string){
+        return gameOwnerData[ownerAddress][number];
+    }
+
+    function getTotalGamesForOwner(address ownerAddress) public view returns (uint){
+        return gameOwnerData[ownerAddress].length;
+    }
 
     // function transferOwnership(uint position) public payable {
     //     require(msg.sender.balance >= msg.value, "not enough funds");
@@ -98,35 +108,27 @@ contract GameTracker is Accounting {
     /**
         Funders
     **/
-    function getFunderAddressByNum(uint position) public view returns (address) {
-        Funder memory funder = funders[position];
-        return funder.funder;
-    }
-
-    function getNumberOfFunders() public view returns (uint) {
-        return numberOfFunders;
-    }
-
-    function getTotalAmountFunded() public view returns (uint){
-        return totalETH;
-    }
-
     function fundGameOwner(uint position) public payable {
         require(msg.sender.balance >= msg.value, "not enough funds");
         GameData storage gamedata = allGameData[position];
-        (Funder memory newFunder, Funder storage fun, bool isFunder) = _hasFundingAccount(msg.sender);
-
-        if(isFunder){
-            fun.account.balanceETH = fun.account.balanceETH.add(msg.value);
-            emit UpdatedBalance(fun.funder, fun.account.balanceETH);
+        
+        if(getAmountFundedByAddress(msg.sender) != 0){
+            Funder storage funder = _getFunder(msg.sender);
+            funder.account.balanceETH = funder.account.balanceETH.add(msg.value);
+            funderFundedData[funder.funder] = funderFundedData[funder.funder].add(msg.value);
+            ipfsHashFunded[gamedata.ipfsHash].push(funder.funder);
+            emit UpdatedBalance(funder.funder, funder.account.balanceETH);
         } else {
             Account memory init = Account({
                 name: "temp",
                 balanceETH: 0
             });
 
-            newFunder = Funder(init, msg.sender);
+            Funder memory newFunder = Funder(init, msg.sender);
             newFunder.account.balanceETH = newFunder.account.balanceETH.add(msg.value);
+            funderFundedData[newFunder.funder] = msg.value;
+            ipfsHashFunded[gamedata.ipfsHash].push(newFunder.funder);
+
             emit UpdatedBalance(newFunder.funder, newFunder.account.balanceETH);
             funders[numberOfFunders] = newFunder;
             numberOfFunders++;
@@ -137,7 +139,33 @@ contract GameTracker is Accounting {
         emit UpdatedBalance(gamedata.owner, gamedata.account.balanceETH);
     }
 
-    function getTopFunder() public view returns (address, uint){
+    function getFunderAddressByNum(uint position) public view returns (address) {
+        Funder memory funder = funders[position];
+        return funder.funder;
+    }
+
+    function getFunderDataByNum(uint position) public view returns (address, uint) {
+        Funder memory funder = funders[position];
+        return (funder.funder, funder.account.balanceETH);
+    }
+
+    function getNumberOfFunders() public view returns (uint256) {
+        return numberOfFunders;
+    }
+
+    function getTotalAmountFunded() public view returns (uint) {
+        return totalETH;
+    }
+
+    function getAmountFundedByAddress(address funderAddress) public view returns (uint) {
+        return funderFundedData[funderAddress];
+    }
+
+    function getAllFundersForGame(string ipfsHash) public view returns (address[]) {
+        return ipfsHashFunded[ipfsHash];
+    }
+
+    function getTopFunder() public view returns (address, uint) {
         uint topAmountFunded = 0;
         address topFunder;
         for(uint i = 0; i < numberOfFunders; i++){
@@ -150,17 +178,17 @@ contract GameTracker is Accounting {
         return (topFunder, topAmountFunded);
     }
 
-    function _hasFundingAccount(address funderAccount) private view returns(Funder memory, Funder storage, bool){
-        Funder memory funderMemory;
-        Funder storage funderStorage;
-        bool isFunder = false;
+    function _getFunder(address funderAccount) internal view returns(Funder storage) {
         for(uint i = 0; i < numberOfFunders; i++){
             if(getFunderAddressByNum(i) == funderAccount) {
-                funderStorage = funders[i];
-                isFunder = true;
-                return(funderMemory, funderStorage, isFunder);
+                Funder storage funderStorage = funders[i];
+                return(funderStorage);
+            }else{
+                Funder storage funderStorageExit = funders[0];
+                return funderStorageExit;
             }
         }
-        return(funderMemory, funderStorage, isFunder);
+        Funder storage funderStorageFix = funders[0];
+        return funderStorageFix;
     }
 }
