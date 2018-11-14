@@ -52,6 +52,7 @@ contract GameTracker {
     **/
     function upload(string ipfsHash) public {
         require(bytes(ipfsHash).length == 46, "incorrect length");
+        require(fullGameData[ipfsHash].owner == address(0x0), "game already uploaded");
 
         gameOwnerData[msg.sender].push(ipfsHash);
         fullGameData[ipfsHash].owner = msg.sender;
