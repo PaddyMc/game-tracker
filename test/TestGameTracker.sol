@@ -8,14 +8,14 @@ contract TestGameTracker {
     GameTracker gameTracker = GameTracker(DeployedAddresses.GameTracker());
 
     function testUserUpload() public {
-        gameTracker.upload("QmPXgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd", "Paddy");
+        gameTracker.upload("QmPXgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd");
         uint numberOfHashes = gameTracker.getNumberOfHashes();
         uint expected = 1;
         Assert.equal(numberOfHashes, expected, "added to smart contract");
     }
 
     function testGetHashByNum() public {
-        gameTracker.upload("Qm2XgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd", "Paddy");
+        gameTracker.upload("Qm2XgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd");
         string memory returnedHash = gameTracker.getHashByNum(1);
         string memory expected = "Qm2XgPCzbdviCVJTJxvYCWtMuRWCKRfNRVcSpARHDKFShd";
         Assert.equal(returnedHash, expected, "stored in the correct place in array");
