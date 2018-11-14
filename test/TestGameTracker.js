@@ -80,7 +80,7 @@ contract('Gametracker', function(accounts) {
   it("checks game account is correct", async () => {
     await gametracker.fundGameOwner(validIpfsHash, {from:funderInit, value: arbitraryAmount2})
     await gametracker.fundGameOwner(validIpfsHash, {from:funderInit, value: arbitraryAmount3})
-    const gameAccount = await gametracker.getAccountForGame(0)
+    const gameAccount = await gametracker.getAccountForGame(validIpfsHash)
     assert.equal(gameAccount[1].toString(), 600000000, "game account is incorrect")
   });
 
