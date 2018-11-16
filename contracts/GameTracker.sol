@@ -67,8 +67,8 @@ contract GameTracker {
         return mapGameData[position];
     }
 
-    function getOwnerForGame(uint position) public view returns (address) {
-        return fullGameData[mapGameData[position]].owner;
+    function getOwnerForGame(uint position) public view returns (address, uint) {
+        return (fullGameData[mapGameData[position]].owner, fullGameData[mapGameData[position]].amountFunded);
     }
 
     function getAccountForGame(string ipfsHash) public view returns (address, uint) {

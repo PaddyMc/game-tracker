@@ -74,7 +74,7 @@ contract('Gametracker', function(accounts) {
   
   it("checks game owner is correct", async () => {
     const gameOwner = await gametracker.getOwnerForGame(0)
-    assert.equal(gameOwner, admin, "game owner does not own ipfs hash")
+    assert.equal(gameOwner[0], admin, "game owner does not own ipfs hash")
   });
 
   it("checks game account is correct", async () => {
@@ -155,5 +155,7 @@ contract('Gametracker', function(accounts) {
       newValidIpfsHash = `${newValidIpfsHash}${i}`
       await gametracker.upload(newValidIpfsHash, {from:madman})
     }
+    const numberOfGames = await gametracker.getNumberOfHashes()
+    assert.equal(numberOfGames.toString(), 1001, "absolute madman didn't upload 1000 games")
   })
 });
