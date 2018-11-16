@@ -7,11 +7,12 @@
 pragma solidity ^0.4.24;
 
 import "./lib/math.sol";
+import "./interface/GameTrackerInterface.sol";
 
 /**
     a base contract for tracking game uploads and funders
 **/
-contract GameTracker {
+contract GameTracker is GameTrackerInterface {
 
     using DSMath for uint;
 
