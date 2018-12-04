@@ -93,6 +93,7 @@ contract GameTracker is GameTrackerInterface {
     **/
     function fundGameOwner(string ipfsHash) public payable {
         require(msg.sender.balance >= msg.value, "not enough funds");
+        require(fullGameData[ipfsHash].owner != msg.sender, "owner cannot fund owned game");
         
         if(getAmountFundedByAddress(msg.sender) != 0){
             funderFundedData[msg.sender] = funderFundedData[msg.sender].add(msg.value);
