@@ -1,141 +1,90 @@
 /**
-    @title: GameTracker
-    @dev: game tracker contract to store IPFS locations
-    @author: PaddyMc
+  @title: GameTracker
+  @dev: game tracker contract to store IPFS locations
+  @author: PaddyMc
  */
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "./lib/math.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./interface/GameTrackerInterface.sol";
 
 /**
-    a base contract for tracking game uploads and funders
+  a base contract for tracking game uploads and funders
 **/
 contract GameTracker is GameTrackerInterface {
 
-    using DSMath for uint;
+  using SafeMath for uint;
 
-    address owner;
+  address owner;
+  string gameStateLocation;
 
-    event Uploaded(string ipfsHash);
-    event UpdatedBalance(address addressFunded, uint balanceETH);
+  event Uploaded(string ipfsHash);
+  
+  struct GameData {
+    address payable owner;
+    uint amountFunded;
+  }
 
-    constructor() public {
-        owner = msg.sender;
-    }
+  // Game Data
+  mapping(uint => string) mapGameData;
+  mapping(string => GameData) fullGameData;
+  mapping(address => string[]) gameOwnerData;
+  
+  uint numberOfGames = 0;
+  
+  /**
+    Games
+  **/
+  function upload(string memory ipfsHash, string memory newGameStateLocation) public {
+    require(bytes(ipfsHash).length == 46, "incorrect length");
+    require(fullGameData[ipfsHash].owner == address(0x0), "game already uploaded");
 
-    function getOwner() public view returns (address) {
-        return owner;
-    }
-    
-    struct GameData {
-        address owner;
-        uint amountFunded;
-    }
+    gameOwnerData[msg.sender].push(ipfsHash);
+    fullGameData[ipfsHash].owner = msg.sender;
+    fullGameData[ipfsHash].amountFunded = 0;
+    mapGameData[numberOfGames] = ipfsHash;
+    numberOfGames++;
 
-    // Game Data
-    mapping(uint => string) mapGameData;
-    mapping(string => GameData) fullGameData;
-    mapping(address => string[]) gameOwnerData;
-    
-    // Funding Data
-    mapping(uint => address) mapFundedData;
-    mapping(address => uint) funderFundedData;
-    mapping(string => address[]) ipfsHashFunded;
+    setGameStateLocation(newGameStateLocation);
+     
+    emit Uploaded(ipfsHash);
+  }
 
-    uint numberOfGames = 0;
-    uint numberOfFunders = 0;
-    uint totalETH = 0;
+  function getHashByNum(uint position) public view returns (string memory) {
+    return mapGameData[position];
+  }
 
-    /**
-        Games
-    **/
-    function upload(string ipfsHash) public {
-        require(bytes(ipfsHash).length == 46, "incorrect length");
-        require(fullGameData[ipfsHash].owner == address(0x0), "game already uploaded");
+  function getOwnerForGame(uint position) public view returns (address, uint) {
+    return (fullGameData[mapGameData[position]].owner, fullGameData[mapGameData[position]].amountFunded);
+  }
 
-        gameOwnerData[msg.sender].push(ipfsHash);
-        fullGameData[ipfsHash].owner = msg.sender;
-        fullGameData[ipfsHash].amountFunded = 0;
-        mapGameData[numberOfGames] = ipfsHash;
-        numberOfGames++;
-       
-        emit Uploaded(ipfsHash);
-    }
+  function getAccountForGame(string memory ipfsHash) public view returns (address, uint) {
+    return (fullGameData[ipfsHash].owner, fullGameData[ipfsHash].amountFunded);
+  }
 
-    function getHashByNum(uint position) public view returns (string) {
-        return mapGameData[position];
-    }
+  function getNumberOfHashes() public view returns (uint) {
+    return numberOfGames;
+  }
 
-    function getOwnerForGame(uint position) public view returns (address, uint) {
-        return (fullGameData[mapGameData[position]].owner, fullGameData[mapGameData[position]].amountFunded);
-    }
+  function getIPFSHashForOwner(address ownerAddress, uint number) public view returns (string memory){
+    return gameOwnerData[ownerAddress][number];
+  }
 
-    function getAccountForGame(string ipfsHash) public view returns (address, uint) {
-        return (fullGameData[ipfsHash].owner, fullGameData[ipfsHash].amountFunded);
-    }
+  function getTotalGamesForOwner(address ownerAddress) public view returns (uint){
+    return gameOwnerData[ownerAddress].length;
+  }
 
-    function getNumberOfHashes() public view returns (uint) {
-        return numberOfGames;
-    }
+  /**
+    GameState
+  **/
+  function setGameStateLocation(string memory newLocation) internal {
+    gameStateLocation = newLocation;
+  }
 
-    function getIPFSHashForOwner(address ownerAddress, uint number) public view returns (string){
-        return gameOwnerData[ownerAddress][number];
-    }
+  function getGameStateLocation() public view returns (string memory){
+    return gameStateLocation;
+  }
 
-    function getTotalGamesForOwner(address ownerAddress) public view returns (uint){
-        return gameOwnerData[ownerAddress].length;
-    }
 
-    /**
-        Funders
-    **/
-    function fundGameOwner(string ipfsHash) public payable {
-        require(msg.sender.balance >= msg.value, "not enough funds");
-        require(fullGameData[ipfsHash].owner != msg.sender, "owner cannot fund owned game");
-        
-        if(getAmountFundedByAddress(msg.sender) != 0){
-            funderFundedData[msg.sender] = funderFundedData[msg.sender].add(msg.value);
-            ipfsHashFunded[ipfsHash].push(msg.sender);
-            totalETH = totalETH.add(msg.value);
-            emit UpdatedBalance(msg.sender, funderFundedData[msg.sender]);
-        } else {
-            funderFundedData[msg.sender] = msg.value;
-            ipfsHashFunded[ipfsHash].push(msg.sender);
-            mapFundedData[numberOfFunders] = msg.sender;
-            totalETH = totalETH.add(msg.value);
-            numberOfFunders++;
-
-            emit UpdatedBalance(msg.sender, funderFundedData[msg.sender]);
-        }
-        fullGameData[ipfsHash].amountFunded = fullGameData[ipfsHash].amountFunded.add(msg.value);
-        fullGameData[ipfsHash].owner.transfer(msg.value);
-
-        emit UpdatedBalance(fullGameData[ipfsHash].owner, fullGameData[ipfsHash].amountFunded);
-    }
-
-    function getNumberOfFunders() public view returns (uint256) {
-        return numberOfFunders;
-    }
-
-    function getTotalAmountFunded() public view returns (uint) {
-        return totalETH;
-    }
-
-    function getAmountFundedByAddress(address funderAddress) public view returns (uint) {
-        return funderFundedData[funderAddress];
-    }
-
-    function getAllFundersForGame(string ipfsHash) public view returns (address[]) {
-        return ipfsHashFunded[ipfsHash];
-    }
-
-    function getFunderAddressByNum(uint position) public view returns (address) {
-        return mapFundedData[position];
-    }
-
-    function getFunderDataByNum(uint position) public view returns (address, uint) {
-        return (mapFundedData[position], funderFundedData[mapFundedData[position]]);
-    }
 }

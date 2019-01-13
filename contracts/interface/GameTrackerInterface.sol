@@ -4,45 +4,45 @@
     @author: PaddyMc
  */
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
     an interface for tracking game uploads and funders
 **/
 contract GameTrackerInterface {
-    /**
-      Games
-    **/
-    function getOwner() public view returns (address);
-    
-    function upload(string ipfsHash) public;
+/**
+    Games
+**/
+//   function getOwner() public view returns (address);
 
-    function getHashByNum(uint position) public view returns (string);
+  function upload(string memory ipfsHash, string memory newGameStateLocation) public;
 
-    function getOwnerForGame(uint position) public view returns (address, uint);
+  function getHashByNum(uint position) public view returns (string memory);
 
-    function getAccountForGame(string ipfsHash) public view returns (address, uint);
+  function getOwnerForGame(uint position) public view returns (address, uint);
 
-    function getNumberOfHashes() public view returns (uint);
+  function getAccountForGame(string memory ipfsHash) public view returns (address, uint);
 
-    function getIPFSHashForOwner(address ownerAddress, uint number) public view returns (string);
+  function getNumberOfHashes() public view returns (uint);
 
-    function getTotalGamesForOwner(address ownerAddress) public view returns (uint);
+  function getIPFSHashForOwner(address ownerAddress, uint number) public view returns (string memory);
 
-    /**
-      Funders
-    **/
-    function fundGameOwner(string ipfsHash) public payable;
+  function getTotalGamesForOwner(address ownerAddress) public view returns (uint);
 
-    function getNumberOfFunders() public view returns (uint256);
+/**
+    Funders
+**/
+//   function fundGameOwner(string memory ipfsHash) public payable;
 
-    function getTotalAmountFunded() public view returns (uint);
+//   function getNumberOfFunders() public view returns (uint256);
 
-    function getAmountFundedByAddress(address funderAddress) public view returns (uint);
+//   function getTotalAmountFunded() public view returns (uint);
 
-    function getAllFundersForGame(string ipfsHash) public view returns (address[]);
+//   function getAmountFundedByAddress(address funderAddress) public view returns (uint);
 
-    function getFunderAddressByNum(uint position) public view returns (address);
+//   function getAllFundersForGame(string memory ipfsHash) public view returns (address[] memory);
 
-    function getFunderDataByNum(uint position) public view returns (address, uint);
+//   function getFunderAddressByNum(uint position) public view returns (address);
+
+//   function getFunderDataByNum(uint position) public view returns (address, uint);
 }

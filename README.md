@@ -34,6 +34,9 @@
 </h3>
 <ul>
     <li>
+        ganache-cli --gasLimit=9000001
+    </li>
+    <li>
         truffle console
     </li>
     <li>
