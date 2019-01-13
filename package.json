@@ -1,0 +1,26 @@
+{
+  "name": "game-tracker",
+  "version": "1.0.0",
+  "description": "<h1>\r     Game Upload Tracker: Smart Contract\r </h1>\r <p>\r     This smart contract is used to store the locations of games uploaded to IPFS, it \r     also allows indie game developers to be funded for uploading games.\r </p>",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaddyMc/game-tracker.git"
+  },
+  "author": "PaddyMc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PaddyMc/game-tracker/issues"
+  },
+  "homepage": "https://github.com/PaddyMc/game-tracker#readme"
+}
