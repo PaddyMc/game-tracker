@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./interface/FundTrackerInterface.sol";
 
-contract FundTracker {
+contract FundTracker is FundTrackerInterface {
   using SafeMath for uint;
 
   event UpdatedBalance(address addressFunded, uint balanceETH);
